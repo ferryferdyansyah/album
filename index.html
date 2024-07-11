@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Album Foto</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+        perspective: 2000px;
+        color: #f0f0f0;
+      }
+      .album-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .album,
+      .cover {
+        display: flex;
+        flex-direction: column;
+        width: 1200px;
+        height: 750px;
+        background-color: white;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        transform-style: preserve-3d;
+        transition: transform 0.6s ease;
+      }
+      .cover {
+        justify-content: center;
+        align-items: center;
+        background-image: url("./foto/bg-album.png"); /* Ganti dengan URL gambar latar belakang Anda */
+        background-size: cover;
+        background-position: center;
+        font-size: 36px;
+        color: #fff; /* Ganti warna teks jika diperlukan agar kontras dengan latar belakang */
+        cursor: pointer;
+      }
+      .page {
+        width: 600px; /* Update to 300px for each half */
+        height: 750px;
+        position: absolute;
+        top: 0;
+        backface-visibility: hidden;
+        transform-origin: left;
+        transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+      .left-page {
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background-image: url("./foto/bg.png"); /* Ganti dengan URL gambar latar belakang Anda */
+        background-size: cover;
+        background-position: center;
+        transform-origin: right;
+      }
+      .right-page {
+        right: 0;
+        transform-origin: left;
+      }
+      .right-page img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .spine {
+        width: 50px;
+        height: 750px;
+        background-color: #dcdcdc;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: -1;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+      .spine::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          transparent 75%,
+          rgba(0, 0, 0, 0.1) 75%
+        );
+        background-size: 10px 10px;
+      }
+      .flipped {
+        transform: rotateY(-180deg);
+      }
+      .nav-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(255, 255, 255, 0.7);
+        border: none;
+        padding: 10px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        z-index: 10;
+      }
+      .nav-button:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      #prevBtn {
+        left: -40px;
+        display: none; /* Hide initially */
+      }
+      #nextBtn {
+        right: -40px;
+        display: none; /* Hide initially */
+      }
+      #description {
+        margin-top: 20px;
+        font-size: 24px;
+        line-height: 1.5;
+        text-align: center;
+        font-style: italic;
+        margin-left: 60px;
+        margin-right: 60px;
+      }
+      .member {
+        align-items: center;
+        margin-top: 20px;
+        font-size: 16px;
+        line-height: 1.5;
+        text-align: center;
+        margin-left: 60px;
+        margin-right: 60px;
+        font-weight: bold;
+      }
+      #caption {
+        font-size: 28px;
+        text-align: center;
+      }
+      .btn-click {
+        border: 1px solid #dcdcdc; /* Mengatur lebar dan warna border */
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        width: 250px;
+        border-radius: 100px;
+      }
+      .btn-click:hover {
+        background-color: #fff;
+        color: #19343d;
+      }
+      .click {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="album-container">
+      <div class="cover" id="cover">
+        <h1>Album Kenangan MIPA 1</h1>
+        <div class="btn-click">
+          <p class="click">Click Here</p>
+        </div>
+      </div>
+      <button id="prevBtn" class="nav-button">&#9664;</button>
+      <div class="album" id="album">
+        <div class="page left-page" id="leftPage">
+          <h2 id="caption">Judul Foto</h2>
+          <h4 id="description">Deskripsi foto akan muncul di sini.</h4>
+          <div class="member">
+            <p id="person1">Member</p>
+            <p id="person2">Member</p>
+            <p id="person3">Member</p>
+            <p id="person4">Member</p>
+            <p id="person5">Member</p>
+          </div>
+        </div>
+        <div class="page right-page" id="rightPage">
+          <img
+            id="photo"
+            src="https://via.placeholder.com/400x500"
+            alt="Foto album"
+          />
+        </div>
+        <div class="spine"></div>
+      </div>
+      <button id="nextBtn" class="nav-button">&#9654;</button>
+    </div>
+
+    <script>
+      const photos = [
+        {
+          url: "./foto/f1.JPG",
+          caption: "Kelompok 1",
+          description:
+            "Tiada Hari Tanpa Masalah, Tiada Hari Tanpa Rasa Lelah, Semangatlah Sampai Bismillahmu Menjadi Alhamdulillah",
+          person1: "Arbi Hasanun Jiddan",
+          person2: "Atsiillah",
+          person3: "Brilliant Akbar Bima Nusantara",
+          person4: "Wulan",
+          person5: "Wahyuningsih",
+        },
+        {
+          url: "./foto/f2.JPG",
+          caption: "Kelompok 2",
+          description:
+            "Melihatmu Bahagia Dengan Pilihanmu Adalah Episode Terakhirku Untuk Mencintaimu",
+          person1: "Alya Wahyu R D",
+          person2: "Andrean Rekzalaya J",
+          person3: "Ayu Zulva",
+          person4: "Calvin",
+          person5: "Elya Agustania",
+        },
+        {
+          url: "./foto/f3.JPG",
+          caption: "Kelompok 3",
+          description:
+            "Akan Selalu Kubantu Kau Pulih Meskipun Bukan Aku Yang Kau Pilih",
+          person1: "Anggun Widyarti",
+          person2: "Bernessa Gilda",
+          person3: "Hidayah Nur Laili",
+          person4: "Siti Nurul Shofiah",
+          person5: "Silvi Aprilia",
+        },
+        {
+          url: "./foto/f4.JPG",
+          caption: "Kelompok 4",
+          description:
+            "Tetaplah Bersujud Walau Keinginanmu Sudah Terwujud, Jangan Hanya Bersujud Ketika Mau Keinginanmu Terwujud",
+          person1: "Amalia Batul",
+          person2: "Danica Fitria P R",
+          person3: "Ferry Ferdyansyah",
+          person4: "Rusyda Sabilan",
+          person5: "Muhammad Raihan Alfirdaus",
+        },
+        {
+          url: "./foto/f5.JPG",
+          caption: "Kelompok 5",
+          description:
+            "Kadang Yang Terindah Diciptakan Untuk Tidak Dimiliki, Cukup Pandangi Dari Jauh Lalu Syukuri Bahwa Ia Ada Di sana Untuk Dikagumi Diam - Diam",
+          person1: "Izzatsalsa",
+          person2: "Izzulfahma",
+          person3: "Nur Laili",
+          person4: "Zahra",
+        },
+        {
+          url: "./foto/f6.JPG",
+          caption: "Kelompok 6",
+          description:
+            "Mencintaimu Itu Candu, Tapi Memilikimu Adalah Dongeng Yang Lucu",
+          person1: "Didin Oktavia P",
+          person2: "Puji Rahayu",
+          person3: "Sulthon Habib Mubarok",
+          person4: "Wanda Pritty E",
+          person5: "Naura Savina P",
+        },
+        {
+          url: "./foto/f7.JPG",
+          caption: "Kelompok 7",
+          description:
+            "Mengenalnya Tanpa Sengaja, Melupakannya Hampir Membuatku Gila. Siapa Sangka Wajah Semanis Senja Bisa Membuat Luka Sedalam Samudera",
+          person1: "Adelia Alisyah",
+          person2: "Ahmad Rizky M",
+          person3: "Dhiyaul Alya",
+          person4: "Ika Rahma Ridha",
+          person5: "Sofyan Affandi",
+        },
+      ];
+
+      let currentIndex = 0;
+
+      const leftPage = document.getElementById("leftPage");
+      const rightPage = document.getElementById("rightPage");
+      const photoElement = document.getElementById("photo");
+      const captionElement = document.getElementById("caption");
+      const descriptionElement = document.getElementById("description");
+      const person1Element = document.getElementById("person1");
+      const person2Element = document.getElementById("person2");
+      const person3Element = document.getElementById("person3");
+      const person4Element = document.getElementById("person4");
+      const person5Element = document.getElementById("person5");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const cover = document.getElementById("cover");
+      const album = document.getElementById("album");
+
+      function updatePhoto(direction) {
+        const currentPhoto = photos[currentIndex];
+
+        if (direction === "next") {
+          rightPage.classList.add("flipped");
+          setTimeout(() => {
+            photoElement.src = currentPhoto.url;
+            captionElement.textContent = currentPhoto.caption;
+            descriptionElement.textContent = currentPhoto.description;
+            person1Element.textContent = currentPhoto.person1;
+            person2Element.textContent = currentPhoto.person2;
+            person3Element.textContent = currentPhoto.person3;
+            person4Element.textContent = currentPhoto.person4;
+            person5Element.textContent = currentPhoto.person5;
+            rightPage.classList.remove("flipped");
+          }, 300);
+        } else if (direction === "prev") {
+          leftPage.classList.add("flipped");
+          setTimeout(() => {
+            photoElement.src = currentPhoto.url;
+            captionElement.textContent = currentPhoto.caption;
+            descriptionElement.textContent = currentPhoto.description;
+            person1Element.textContent = currentPhoto.person1;
+            person2Element.textContent = currentPhoto.person2;
+            person3Element.textContent = currentPhoto.person3;
+            person4Element.textContent = currentPhoto.person4;
+            person5Element.textContent = currentPhoto.person5;
+            leftPage.classList.remove("flipped");
+          }, 300);
+        } else {
+          photoElement.src = currentPhoto.url;
+          captionElement.textContent = currentPhoto.caption;
+          descriptionElement.textContent = currentPhoto.description;
+          person1Element.textContent = currentPhoto.person1;
+          person2Element.textContent = currentPhoto.person2;
+          person3Element.textContent = currentPhoto.person3;
+          person4Element.textContent = currentPhoto.person4;
+          person5Element.textContent = currentPhoto.person5;
+        }
+      }
+
+      cover.addEventListener("click", () => {
+        cover.style.display = "none";
+        album.style.display = "flex";
+        prevBtn.style.display = "block";
+        nextBtn.style.display = "block";
+        updatePhoto();
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updatePhoto("prev");
+        }
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentIndex < photos.length - 1) {
+          currentIndex++;
+          updatePhoto("next");
+        }
+      });
+
+      album.style.display = "none"; // Hide the album initially
+    </script>
+  </body>
+</html>
